@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test-and-deploy:
+  test:
     runs-on: ubuntu-latest
     
     steps:
@@ -28,7 +28,7 @@ jobs:
           node -c server.js
           echo "Server code is valid"
 
-  build_and_push:
+  build_push_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -48,3 +48,17 @@ jobs:
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/repo:prac5
+      
+      - name: Trigger deploy hook
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "Triggering deployment on Render..."
+            curl -X POST "$DEPLOY_URL"
+            echo "Deploy triggered successfully"
+          else
+            echo "RENDER_DEPLOY_HOOK_URL not set, skipping deploy"
+          fi
+
