@@ -33,10 +33,10 @@ document.getElementById('flask-btn').addEventListener('click', async () => {
     responseText.textContent = data.message;
     responseText.style.color = '#4CAF50';
   } catch (err) {
-    responseText.textContent = '❌ Ошибка связи с Flask';
+    responseText.textContent = 'Ошибка связи с Flask';
     responseText.style.color = '#f44336';
   } finally {
     btn.disabled = false;
-    btn.textContent = '🔥 Вызвать Flask';
+    btn.textContent = 'Action';
   }
 });
