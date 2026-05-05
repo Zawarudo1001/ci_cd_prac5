@@ -27,6 +27,26 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+const http = require('http');
+app.all('/api/flask/*', (req, res) => {
+  const proxyReq = http.request({
+    hostname: 'localhost',
+    port: 5000,
+    path: req.url,
+    method: req.method,
+    headers: req.headers
+  }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+  
+  proxyReq.on('error', () => {
+    res.status(502).json({ error: 'Flask service is currently unavailable' });
+  });
+  
+  req.pipe(proxyReq);
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
